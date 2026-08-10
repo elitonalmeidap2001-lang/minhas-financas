@@ -535,8 +535,17 @@ function computeMonth(state, mKey) {
     .filter(x => x.status);
   const totalFixed = activeFixed.reduce((s, x) => s + Number(x.fe.amount), 0);
 
-  const cardTx = state.cardTransactions.filter(t => t.invoiceMonth === mKey);
-  const totalCard = cardTx.reduce((s, t) => s + Number(t.amount), 0);
+  // A consolidated invoice replaces old per-purchase entries for that card and
+  // month, so a bill is never counted twice.
+  const invoices = (state.cardInvoices || []).filter(i => i.invoiceMonth === mKey);
+  const invoicedCardIds = new Set(invoices.map(i => i.cardId));
+  const cardTx = state.cardTransactions.filter(t => t.invoiceMonth === mKey && !invoicedCardIds.has(t.cardId));
+  const totalCard = invoices.reduce((s, i) => s + Number(i.amount), 0) + cardTx.reduce((s, t) => s + Number(t.amount), 0);
+  const cardInvoiceEntries = invoices.map(i => ({
+    ...i,
+    description: `Fatura: ${state.cards.find(c => c.id === i.cardId)?.name || "cartão"}`,
+    date: `${mKey}-01`,
+  }));
 
   const monthInvest = state.investments.filter(i => i.monthReference === mKey && i.type === "CONTRIBUTION");
   const totalInvest = monthInvest.reduce((s, i) => s + Number(i.amount), 0);
@@ -544,7 +553,7 @@ function computeMonth(state, mKey) {
   const tithe = totalIncome * 0.1;
   const balance = totalIncome - tithe - totalFixed - totalVar - totalCard - totalInvest;
 
-  return { incomes, totalIncome, tithe, varExp, totalVar, activeFixed, totalFixed, cardTx, totalCard, totalInvest, balance };
+  return { incomes, totalIncome, tithe, varExp, totalVar, activeFixed, totalFixed, cardTx, cardInvoiceEntries, totalCard, totalInvest, balance };
 }
 
 /* ============================================================
@@ -710,7 +719,7 @@ function VariableExpensesSection({ state, mKey, hidden, onAdd, onEdit, onDelete 
   return (
     <Card style={{ marginTop: 14, marginBottom: 100 }}>
       <SectionTitle action={<AddButton onClick={onAdd} />}>Gastos variáveis</SectionTitle>
-      {d.varExp.length === 0 ? (
+      {d.varExp.length === 0 && d.cardInvoiceEntries.length === 0 ? (
         <EmptyState text="Nenhum gasto variável neste mês." cta="+ Adicionar gasto" onCta={onAdd} />
       ) : (
         <div>
@@ -722,11 +731,18 @@ function VariableExpensesSection({ state, mKey, hidden, onAdd, onEdit, onDelete 
               onEdit={() => onEdit(v)} onDelete={() => onDelete(v.id)}
             />
           ))}
+          {d.cardInvoiceEntries.map(invoice => (
+            <RowItem key={`invoice-${invoice.id}`}
+              leftIcon={<CreditCard size={17} />} leftBg={SURFACE} leftColor={MUTED}
+              title={invoice.description} subtitle={`Fatura atualizada · ${monthLabel(mKey)}`}
+              right={<Money value={invoice.amount} hidden={hidden} />}
+            />
+          ))}
         </div>
       )}
       <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 14 }}>
         <span style={{ fontSize: 13.5, fontWeight: 600, color: MUTED }}>Total de gastos variáveis</span>
-        <span style={{ fontSize: 16, fontWeight: 800, color: INK }}><Money value={d.totalVar} hidden={hidden} /></span>
+        <span style={{ fontSize: 16, fontWeight: 800, color: INK }}><Money value={d.totalVar + d.totalCard} hidden={hidden} /></span>
       </div>
       {d.totalCard > 0 && (
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, paddingTop: 8, borderTop: `1px solid ${BORDER}` }}>

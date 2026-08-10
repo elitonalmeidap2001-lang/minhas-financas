@@ -5,7 +5,7 @@ import {
   ArrowUpRight, ArrowDownRight, CheckCircle2, LogOut, ChevronDown, Check
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
-import { auth, firebaseEnabled, loadCloudState, saveCloudState, signInWithGoogle, signOutFromGoogle } from "./firebase.js";
+import { auth, createAccountWithEmail, firebaseEnabled, loadCloudState, saveCloudState, signInWithEmail, signInWithGoogle, signOutFromGoogle } from "./firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
 
 /* ============================================================
@@ -425,7 +425,7 @@ function MonthSelector({ monthKeyVal, onChange, overlap = true }) {
 /* ============================================================
    LOGIN / CREATE ACCOUNT
    ============================================================ */
-function LoginScreen({ onLogin, onGoogleLogin, mode, setMode }) {
+function LoginScreen({ onLogin, onGoogleLogin, onEmailLogin, mode, setMode }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -437,7 +437,18 @@ function LoginScreen({ onLogin, onGoogleLogin, mode, setMode }) {
 
   function submit() {
     setError("");
-    if (firebaseEnabled) return setError("Para este teste, entre com Google.");
+    if (firebaseEnabled) {
+      if (!email.trim() || !password) return setError("Preencha e-mail e senha.");
+      if (isCreate && !name.trim()) return setError("Informe seu nome.");
+      return onEmailLogin({ name: name.trim(), email: email.trim(), password, isCreate }).catch((err) => {
+        const code = err?.code || "";
+        if (code.includes("email-already-in-use")) setError("Este e-mail já possui uma conta.");
+        else if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found")) setError("E-mail ou senha incorretos.");
+        else if (code.includes("weak-password")) setError("A senha deve ter ao menos 6 caracteres.");
+        else if (code.includes("operation-not-allowed")) setError("Ative E-mail/senha no Console Firebase para usar esta opção.");
+        else setError("Não foi possível continuar. Tente novamente.");
+      });
+    }
     if (isCreate) {
       if (!name.trim()) return setError("Informe seu nome.");
       if (!email.trim()) return setError("Informe seu e-mail.");
@@ -1401,7 +1412,13 @@ export default function App() {
   if (!state.user) {
     return (
       <div style={{ fontFamily: "Inter, sans-serif" }}>
-        <LoginScreen mode={authMode} setMode={setAuthMode} onGoogleLogin={signInWithGoogle} onLogin={(user) => setState(s => ({ ...s, user }))} />
+        <LoginScreen
+          mode={authMode}
+          setMode={setAuthMode}
+          onGoogleLogin={signInWithGoogle}
+          onEmailLogin={({ name, email, password, isCreate }) => isCreate ? createAccountWithEmail(name, email, password) : signInWithEmail(email, password)}
+          onLogin={(user) => setState(s => ({ ...s, user }))}
+        />
       </div>
     );
   }

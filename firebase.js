@@ -34,4 +34,3 @@ export async function loadCloudState(uid) {
 export async function saveCloudState(uid, state) {
   await setDoc(doc(db, "users", uid), { state, updatedAt: serverTimestamp() }, { merge: true });
 }
-Corrige integração Firebase

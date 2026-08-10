@@ -1,0 +1,314 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #14141a; background: #f7f7fa; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input, select { font: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(15,169,88,.28) !important; outline-offset: 2px; }
+button { -webkit-tap-highlight-color: transparent; }
+#root { min-height: 100vh; }
+
+/* Premium authentication card: mobile-first, but centered as a true card on
+   larger screens. The green header contracts when the create-account form is open. */
+#root:has(.auth-screen) { background: #edf2ee; }
+.auth-screen {
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  justify-content: flex-start !important;
+  padding: 262px 28px 34px !important;
+  background: #fff !important;
+  box-shadow: 0 18px 48px rgba(10, 40, 25, .14);
+}
+.auth-screen::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 228px;
+  background: linear-gradient(145deg, #0FA958, #08763b);
+  border-radius: 0 0 40px 40px;
+  transition: height .46s cubic-bezier(.2,.75,.25,1), border-radius .46s ease;
+}
+.auth-screen::after {
+  content: "MINHAS FINANÇAS\A Seu dinheiro, com mais clareza.";
+  white-space: pre;
+  position: absolute;
+  z-index: 1;
+  top: 142px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255,255,255,.88);
+  font-size: 11px;
+  line-height: 1.65;
+  letter-spacing: .12em;
+  font-weight: 700;
+  pointer-events: none;
+  transition: transform .46s cubic-bezier(.2,.75,.25,1), opacity .25s ease;
+}
+.auth-logo {
+  position: absolute !important;
+  z-index: 2;
+  top: 52px;
+  left: 50%;
+  width: 84px !important;
+  height: 84px !important;
+  margin: 0 !important;
+  transform: translateX(-50%);
+  border-radius: 28px !important;
+  background: rgba(255,255,255,.13) !important;
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -.04em;
+  transition: top .46s cubic-bezier(.2,.75,.25,1), transform .46s cubic-bezier(.2,.75,.25,1);
+}
+.auth-screen h1 { font-size: 26px !important; letter-spacing: -.04em; }
+.auth-screen--login h1 { font-size: 0 !important; }
+.auth-screen--login h1::after { content: "Acesse sua conta"; font-size: 26px; }
+.auth-screen > p { margin-bottom: 26px !important; }
+.auth-screen--create { padding-top: 204px !important; }
+.auth-screen--create::before { height: 170px; border-radius: 0 0 32px 32px; }
+.auth-screen--create::after { transform: translateY(-32px); opacity: .85; }
+.auth-screen--create .auth-logo { top: 30px; transform: translateX(-50%) scale(.72); }
+.auth-screen--create > h1,
+.auth-screen--create > p,
+.auth-screen--create > div:not(.auth-logo),
+.auth-screen--create > button { animation: auth-form-rise .42s cubic-bezier(.2,.75,.25,1) both; }
+@keyframes auth-form-rise { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (min-width: 560px) {
+  #root:has(.auth-screen) { display: grid; place-items: center; padding: 30px; }
+  .auth-screen { min-height: 640px !important; width: min(100%, 440px); border-radius: 36px; }
+  .auth-screen::before { border-radius: 0 0 40px 40px; }
+}
+
+/* Login follows the approved single-card composition: green through the
+   recovery link, then a quiet white area containing only account creation. */
+.auth-screen--login {
+  padding: 188px 28px 34px !important;
+}
+.auth-screen--login::before {
+  /* Contém os dois acessos e o link de recuperação sem cortar a transição
+     para a área branca de criação de conta. */
+  height: 566px;
+  border-radius: 0 0 42px 42px;
+}
+.auth-screen--login::after { content: none; }
+.auth-screen--login .auth-logo {
+  top: 44px;
+  transform: translateX(-50%) scale(1.04);
+}
+.auth-screen--login > h1,
+.auth-screen--login > h1 + p { display: none; }
+.auth-screen--login > div:not(.auth-logo) label { color: rgba(255,255,255,.88) !important; }
+.auth-screen--login input { border-color: rgba(255,255,255,.35) !important; }
+.auth-screen--login > button:first-of-type {
+  background: #075b31 !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,.16);
+}
+.auth-screen--login .auth-google-button {
+  min-height: 48px;
+  border-color: rgba(255,255,255,.75) !important;
+  box-shadow: none;
+}
+.auth-screen--login .auth-forgot {
+  color: #fff !important;
+  position: relative;
+  z-index: 1;
+}
+.auth-login-divider span { color: #8b93a2 !important; }
+.auth-screen--login .auth-login-divider > div { background: #e7e7ec !important; }
+
+/* On large screens, the mobile card becomes a generous two-panel sign-in
+   experience: controls on the left and the MF identity on the right. */
+@media (min-width: 900px) {
+  #root:has(.auth-screen) { padding: 44px; }
+  .auth-screen {
+    width: min(100%, 1240px) !important;
+    max-width: 1240px !important;
+    min-height: min(760px, calc(100vh - 88px)) !important;
+    padding: 208px 0 44px 9% !important;
+    border-radius: 34px;
+  }
+  .auth-screen::before {
+    inset: 0 0 0 54%;
+    height: auto;
+    border-radius: 0;
+    background: linear-gradient(145deg, #0FA958, #075b31);
+  }
+  .auth-screen--login::before { height: auto; border-radius: 0; }
+  .auth-screen::after { content: none; }
+  .auth-logo,
+  .auth-screen--login .auth-logo,
+  .auth-screen--create .auth-logo {
+    top: 50%;
+    left: 77%;
+    width: 142px !important;
+    height: 142px !important;
+    border-radius: 42px !important;
+    font-size: 48px;
+    transform: translate(-50%, -50%) scale(1) !important;
+  }
+  .auth-screen--login > h1,
+  .auth-screen--login > h1 + p { display: none; }
+  .auth-screen > h1,
+  .auth-screen > div:not(.auth-logo),
+  .auth-screen > button,
+  .auth-screen > p { width: min(390px, 38%); }
+  .auth-screen--login > div:not(.auth-logo) label { color: #6B7280 !important; }
+  .auth-screen--login input { border-color: #d9dde4 !important; }
+  .auth-screen--login .auth-forgot { color: #0b7a40 !important; }
+  .auth-screen--create { padding-top: 118px !important; }
+  .auth-screen--create::before { height: auto; }
+}
+
+/* Keep the sign-in composition compact at every scale. A single card avoids
+   the unused lower area and retains the intended mobile hierarchy on desktop. */
+@media (min-width: 900px) {
+  #root:has(.auth-screen) { padding: 30px; }
+  .auth-screen {
+    width: min(100%, 520px) !important;
+    max-width: 520px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 188px 28px 34px !important;
+    border-radius: 34px;
+  }
+  .auth-screen::before,
+  .auth-screen--login::before {
+    inset: 0 0 auto;
+    height: 566px;
+    border-radius: 0 0 42px 42px;
+  }
+  .auth-screen::after { content: none; }
+  .auth-logo,
+  .auth-screen--login .auth-logo,
+  .auth-screen--create .auth-logo {
+    top: 44px;
+    left: 50%;
+    width: 84px !important;
+    height: 84px !important;
+    border-radius: 28px !important;
+    font-size: 28px;
+    transform: translateX(-50%) scale(1.04) !important;
+  }
+  .auth-screen > h1,
+  .auth-screen > div:not(.auth-logo),
+  .auth-screen > button,
+  .auth-screen > p { width: 100%; }
+  .auth-screen--login > div:not(.auth-logo) label { color: rgba(255,255,255,.88) !important; }
+  .auth-screen--login input { border-color: rgba(255,255,255,.35) !important; }
+  .auth-screen--login .auth-forgot { color: #fff !important; }
+  .auth-screen--create { padding-top: 204px !important; }
+  .auth-screen--create::before {
+    height: 170px !important;
+    border-radius: 0 0 32px 32px;
+  }
+  .auth-screen--create .auth-logo { top: 30px; transform: translateX(-50%) scale(.72) !important; }
+}
+
+/* Mobile is the natural layout. Larger screens gain space instead of merely
+   stretching a phone-shaped canvas. */
+@media (min-width: 768px) {
+  body { background: #eef1f4; }
+
+  .app-shell {
+    width: min(100%, 1240px);
+    max-width: 1240px !important;
+    min-height: 100vh;
+    padding-bottom: 104px;
+    box-shadow: 0 0 50px rgba(20, 20, 26, .08);
+  }
+
+  .app-header {
+    padding: 28px 42px 76px !important;
+    border-radius: 0 0 30px 30px;
+  }
+
+  .dashboard-content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 32px !important;
+    align-items: stretch;
+  }
+
+  .dashboard-content > :nth-child(1) { grid-column: 1 / -1; }
+  .dashboard-content > :nth-child(2) { grid-column: 1; }
+  .dashboard-content > :nth-child(3) { grid-column: 2; }
+  .dashboard-content > :nth-child(4) { grid-column: 1; }
+  .dashboard-content > :nth-child(5) { grid-column: 2; }
+  .dashboard-content > :nth-child(6) { grid-column: 1; }
+  .dashboard-content > :nth-child(7) { grid-column: 2; }
+
+  .dashboard-content .app-card { margin-top: 0 !important; }
+
+  .app-page {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+  }
+
+  /* Perfil é uma sequência de grupos (título + cartão). Mantê-lo em uma
+     coluna evita separar um título do respectivo conteúdo em telas largas. */
+  .profile-page {
+    max-width: 780px;
+  }
+
+  .app-bottom-nav { bottom: 24px !important; }
+  .app-nav-bar { max-width: 680px !important; }
+}
+
+/* Tablets estreitos têm espaço insuficiente para dois cartões confortáveis.
+   Neles, o dashboard volta automaticamente a uma única coluna. */
+@media (min-width: 768px) and (max-width: 899px) {
+  .dashboard-content {
+    display: block;
+    max-width: 680px;
+    padding: 0 24px !important;
+  }
+
+  .dashboard-content .app-card { margin-top: 14px !important; }
+  .dashboard-content > :first-child { margin-top: 0 !important; }
+}
+
+
+/* Endereços de e-mail e nomes grandes não devem ultrapassar o cartão. */
+.app-card p,
+.app-card span,
+.app-card div { overflow-wrap: anywhere; }
+
+.theme-nubank .app-header { background: linear-gradient(135deg,#6D28D9,#4C1D95) !important; }
+.theme-inter .app-header { background: linear-gradient(135deg,#EA580C,#9A3412) !important; }
+.theme-cora .app-header { background: linear-gradient(135deg,#BE185D,#831843) !important; }
+.theme-mercadopago .app-header { background: linear-gradient(135deg,#0284C7,#075985) !important; }
+.theme-nubank .dashboard-content > .app-card:first-child { background:#4C1D95 !important; }
+.theme-inter .dashboard-content > .app-card:first-child { background:#9A3412 !important; }
+.theme-cora .dashboard-content > .app-card:first-child { background:#831843 !important; }
+.theme-mercadopago .dashboard-content > .app-card:first-child { background:#075985 !important; }
+
+/* Theme tokens: identity colors change navigation and emphasis only. Financial
+   semantics stay universal—green for positive results and red for spending. */
+.theme-picpay { --brand:#0FA958; --brand-dark:#075B31; --brand-tint:#E4F9EC; --brand-soft:#D1FAE5; }
+.theme-nubank { --brand:#6D28D9; --brand-dark:#4C1D95; --brand-tint:#F3E8FF; --brand-soft:#DDD6FE; }
+.theme-inter { --brand:#EA580C; --brand-dark:#9A3412; --brand-tint:#FFF7ED; --brand-soft:#FED7AA; }
+.theme-cora { --brand:#BE185D; --brand-dark:#831843; --brand-tint:#FCE7F3; --brand-soft:#FBCFE8; }
+.theme-mercadopago { --brand:#0284C7; --brand-dark:#075985; --brand-tint:#E0F2FE; --brand-soft:#BAE6FD; }
+.app-shell .app-header { background:linear-gradient(135deg,var(--brand),var(--brand-dark)) !important; }
+.app-shell .balance-card,
+.app-shell .monthly-invest-card,
+.app-shell .invest-summary-card { background:var(--brand-dark) !important; border:none !important; color:#fff !important; }
+.app-shell .monthly-invest-card p { color:#fff !important; }
+.app-shell .invest-summary-card p { color:#fff !important; }
+.app-shell .monthly-invest-card button { background:rgba(255,255,255,.14) !important; color:#fff !important; border-color:rgba(255,255,255,.28) !important; }
+.app-shell .monthly-invest-card > div > div > div:first-child { background:var(--brand-soft) !important; color:var(--brand-dark) !important; }
+.app-shell .onboarding-card { background:var(--brand-tint) !important; }
+.app-shell .onboarding-card p,
+.app-shell .onboarding-card span { color:var(--brand-dark) !important; }
+.app-shell .nav-item--active { background:var(--brand-tint) !important; color:var(--brand) !important; }
+.app-shell .nav-item--active span { color:var(--brand) !important; }
+.app-shell .nav-item--active svg { stroke:var(--brand) !important; }

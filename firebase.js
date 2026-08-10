@@ -3,23 +3,29 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/
 import { doc, getDoc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyApqDWOa4StjEFdTbFTJ2uK9_29fQhLaYQ",
+  authDomain: "minhasfinancas-2026.firebaseapp.com",
+  projectId: "minhasfinancas-2026",
+  storageBucket: "minhasfinancas-2026.firebasestorage.app",
+  messagingSenderId: "888630123994",
+  appId: "1:888630123994:web:3853dd85e0c99b94fe34e3",
+  measurementId: "G-279G59BC9W"
 };
 
-export const firebaseEnabled = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
-const app = firebaseEnabled ? initializeApp(firebaseConfig) : null;
-export const auth = app ? getAuth(app) : null;
-export const db = app ? getFirestore(app) : null;
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 
 export async function signInWithGoogle() {
-  if (!auth) throw new Error("Firebase não foi configurado.");
-  return signInWithPopup(auth, new GoogleAuthProvider());
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    return result.user;
+  } catch (error) {
+    alert("ERRO NO LOGIN: " + error.code + "\n\n" + error.message);
+    console.error("Erro ao autenticar com Google:", error);
+    throw error;
+  }
 }
 
 export async function signOutFromGoogle() {

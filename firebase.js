@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
 import { doc, getDoc, getFirestore, serverTimestamp, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -20,6 +20,18 @@ export const db = app ? getFirestore(app) : null;
 export async function signInWithGoogle() {
   if (!auth) throw new Error("Firebase não foi configurado.");
   return signInWithPopup(auth, new GoogleAuthProvider());
+}
+
+export async function signInWithEmail(email, password) {
+  if (!auth) throw new Error("Firebase não foi configurado.");
+  return signInWithEmailAndPassword(auth, email, password);
+}
+
+export async function createAccountWithEmail(name, email, password) {
+  if (!auth) throw new Error("Firebase não foi configurado.");
+  const credential = await createUserWithEmailAndPassword(auth, email, password);
+  if (name) await updateProfile(credential.user, { displayName: name });
+  return credential;
 }
 
 export async function signOutFromGoogle() {
